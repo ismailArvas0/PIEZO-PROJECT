@@ -1,0 +1,38 @@
+#define Sensor A0
+#define relay 7 
+#define vurusLimit 2
+int vurusSayisi = 0;
+bool durum = false;
+
+void setup() {
+  pinMode(Sensor, INPUT);
+  pinMode(relay, OUTPUT);
+  Serial.begin(9600); // Seri haberleşmeyi başlat
+}
+
+void loop() {
+  int SensorDeger = analogRead(Sensor);
+
+  if (SensorDeger >= 150) {
+    vurusSayisi++;
+    Serial.print("Piezoya vuruldu! Toplam vuruş sayısı: ");
+    Serial.println(vurusSayisi); // Piezoya vuruş sayısını seri porta yazdır
+    delay(100); // Gereksinimlerinize göre bu gecikmeyi ayarlayın
+  }
+
+  // Algılanan darbe sayısı sınırlamayı aştığında
+  if (vurusSayisi >= vurusLimit && !durum) {
+    digitalWrite(relay, HIGH); // Relay'i aç
+    delay(1000); // Bekleme süresi
+    vurusSayisi = 0; // Vuruş sayısını sıfırla
+    durum = true; // Durumu değiştir
+  }
+
+  // Algılanan darbe sayısı sınırlamayı aştığında
+  if (vurusSayisi >= vurusLimit && durum) {
+    digitalWrite(relay, LOW); // Relay'i kapat
+    delay(1000); // Bekleme süresi
+    vurusSayisi = 0; // Vuruş sayısını sıfırla
+    durum = false; // Durumu değiştir
+  }
+}
